@@ -1,0 +1,3 @@
+javac -cp bin -d bin src/edu/cs425/mp3/client/*.java 
+java -cp bin edu.cs425.mp3.client.SdfsClient
+
