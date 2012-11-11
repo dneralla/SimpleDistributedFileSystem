@@ -10,6 +10,7 @@ public class DeleteMessage extends RequestMessage {
 	}
 	@Override
 	public void processMessage(Process process) throws Exception {
+		process.getLogger().info("Relaying the delete message to master node: "+process.getMaster().getHostAddress());
 		process.getTcpServer().sendMessage(new DeleteRelayMessage(fileName), process.getMaster().getHostAddress(), process.TCP_SERVER_PORT);
 		outputStream.writeObject("Done");
 	}

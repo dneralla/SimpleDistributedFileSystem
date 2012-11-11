@@ -19,7 +19,7 @@ public class ChunkTransferMessage extends RequestMessage {
 	@Override
 	public void processMessage(Process process) throws Exception {
 		    String chunk = FileSystemManager.getChunk(fileName, chunkId);
-		    System.out.println("Sending chunk to:" + this.destination);
+		    process.getLogger().info("Sending chunk to: " + this.destination);
 			outputStream.writeObject(process.getTcpServer().sendRequestMessage(new ChunkMessage(chunk, chunkId, fileName, process.getNode().getHostAddress()), destination, Process.TCP_SERVER_PORT));
 	}
 

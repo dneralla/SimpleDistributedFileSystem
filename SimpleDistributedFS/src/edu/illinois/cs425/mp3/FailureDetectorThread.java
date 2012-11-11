@@ -35,7 +35,6 @@ public class FailureDetectorThread extends Thread {
 				
 				if (pause)
 					continue;
-				System.out.println("In failuredetector thread"+lastReceivedHeartBeatTime);
 				pause = true;
 				System.out.println("Failure Detected: "
 						+ process.getHeartbeatSendingNode().getHostAddress());

@@ -21,6 +21,7 @@ public class GetFileMessage extends RequestMessage {
 	@Override
 	public void processMessage(Process process) throws ClassNotFoundException,
 			IOException {
+		process.getLogger().info("Received the get request for "+sdfsFileName);
 		ArrayList<FileIdentifier> fileChunkReplicas = null;
 		String chunk;
 		do {

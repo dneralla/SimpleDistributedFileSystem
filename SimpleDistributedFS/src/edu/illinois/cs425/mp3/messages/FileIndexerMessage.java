@@ -12,6 +12,7 @@ public class FileIndexerMessage extends GenericMessage {
 
 	@Override
 	public void processMessage(Process process) throws Exception {
+		  process.getLogger().info("Merging the received file indexer");
 		  process.getFileIndexer().merge(fileIndexer);
 	}
 }

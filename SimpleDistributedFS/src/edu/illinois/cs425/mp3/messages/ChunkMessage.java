@@ -21,6 +21,7 @@ public class ChunkMessage extends RequestMessage {
 
 	@Override
 	public void processMessage(Process process) throws Exception {
+		process.getLogger().info("Saving the received chunk");
 		FileSystemManager.putChunk(chunk, fileName, chunkId);
 		FileIdentifier fid = new FileIdentifier(chunkId, fileName, process.getNode().getHostAddress());
 		process.getFileIndexer().merge(fid);

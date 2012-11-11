@@ -10,12 +10,9 @@ public class FileIndexerRequestMessage extends RequestMessage {
 	}
 	@Override
 	public void processMessage(Process process) throws Exception {
+		process.getLogger().info("Received the request for file indexer");
 		if(fileName == null) {
-			for(FileIdentifier fid: process.getFileIndexer().getFileList()) {
-				System.out.println("File name:" + fid.getSdfsFileName());
-			}
 			outputStream.writeObject(process.getFileIndexer().getFileList());
-			System.out.println("Got request for file indexer");
 		}
 		else
 			outputStream.writeObject(process.getFileIndexer().groupBy(fileName));

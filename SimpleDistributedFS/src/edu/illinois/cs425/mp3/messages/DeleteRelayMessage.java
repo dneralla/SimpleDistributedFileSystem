@@ -22,13 +22,8 @@ public class DeleteRelayMessage extends RequestMessage {
 	@Override
 	public void processMessage(Process process) throws IOException {
 		InetAddress self = process.getNode().getHostAddress();
-		System.out.println("in Delete Message");
-		process.getFileIndexer().print();
-		System.out.println("no of replicas"+ process.getFileIndexer().getReplicas(
-				sdfsFileName).size());
 		for (InetAddress host : process.getFileIndexer().getReplicas(
 				sdfsFileName)) {
-			System.out.println("Relicat present at: " + host);
 			try {
 				process.getTcpServer().sendRequestMessage(
 						new DeleteChunkMessage(sdfsFileName), host,

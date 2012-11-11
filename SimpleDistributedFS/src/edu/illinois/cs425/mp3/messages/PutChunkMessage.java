@@ -17,7 +17,7 @@ public class PutChunkMessage extends RequestMessage {
 
 	@Override
 	public void processMessage(Process process) throws Exception {
-		
+        System.out.println("Received request for putting the "+chunkId+" of"+fileName);
 		FileSystemManager.putChunk(chunk, fileName, chunkId);
 		FileIdentifier fid = new FileIdentifier(chunkId, fileName, process.getNode().getHostAddress());
 		process.getFileIndexer().merge(fid); 

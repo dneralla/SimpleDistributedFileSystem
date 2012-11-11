@@ -8,15 +8,13 @@ import edu.illinois.cs425.mp3.FileSystemManager;
 import edu.illinois.cs425.mp3.Process;
 
 public class DeleteChunkMessage extends RequestMessage {
-	/**
-	 * 
-	 */
 	String fileName;
 	public DeleteChunkMessage(String fileName) {
 		this.fileName = fileName;
 	}
 	@Override
 	public void processMessage(Process process) throws Exception {
+		process.getLogger().info("Deleting the file chunks of file: "+fileName);
 		List<FileIdentifier> toBeDeleted = new ArrayList<FileIdentifier>();
 		for(FileIdentifier fid: process.getFileIndexer().getFileList()) {
 			if(fid.getSdfsFileName().equals(fileName)) {

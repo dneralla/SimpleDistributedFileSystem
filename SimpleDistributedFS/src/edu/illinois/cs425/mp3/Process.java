@@ -40,7 +40,7 @@ public class Process {
 	public static final int UDP_SERVER_PORT = 4447;
 	public static final int TCP_SERVER_PORT = 4448;
 	public static final int REPLICA_COUNT = 2;
-	public static final int CHUNK_SIZE = 1024*1024/5;
+	public static final int CHUNK_SIZE = 1024 * 1024;
 
 	private int chunkSize = 12;
 
@@ -293,7 +293,6 @@ public class Process {
 		public void run() {
 			try {
 				String inputLine;
-				System.out.print("[Please Enter Command]$ ");
 				BufferedReader in = new BufferedReader(new InputStreamReader(
 						System.in));
 				System.out.print("[Please Enter Command]$ ");
@@ -311,8 +310,8 @@ public class Process {
 						if (isMasterUp) {
 							sendMessage(message, master);
 						} else {
-							String name = inputLine.substring(
-									inputLine.indexOf(" ") + 1);
+							String name = inputLine.substring(inputLine
+									.indexOf(" ") + 1);
 							int port = Process.TCP_SERVER_PORT;
 							MemberNode temporaryMaster = new MemberNode(name);
 							sendMessage(message, temporaryMaster);
@@ -331,8 +330,6 @@ public class Process {
 						getLogger().info("Leave Message sent");
 					} else if (inputLine.startsWith("print")) {
 						printNodes();
-					} else if (inputLine.startsWith("put")) {
-
 					} else if (inputLine.equals("next")) {
 						System.out.println("Neighbour Port: "
 								+ getNeighborNode().getDescription());
@@ -340,8 +337,7 @@ public class Process {
 						getFileIndexer().print();
 					} else if (inputLine.equals("master")) {
 						System.out.println(master.getHostAddress());
-					}
-					else if (inputLine.equals("help")) {
+					} else if (inputLine.equals("help")) {
 						System.out
 								.println("Usage: [join|leave] <hostname:hostport>");
 					} else if (inputLine.equals("exit")) {
@@ -351,7 +347,6 @@ public class Process {
 					System.out.print("[Please Enter Command]$ ");
 				}
 			} catch (Exception e) {
-
 				e.printStackTrace();
 			}
 		}
@@ -365,11 +360,13 @@ public class Process {
 				master = node;
 			}
 		}
+		getLogger().info("New master is elected: " + master.getHostAddress());
 		return master;
 	}
 
 	public void startMasterElection() {
 		CoordinatorMessage message = new CoordinatorMessage(electMaster());
+		getLogger().info("Sending co-ordinator messages");
 		for (MemberNode node : getGlobalList()) {
 			tcpServer.sendMessage(message, node.getHostAddress(),
 					TCP_SERVER_PORT);
@@ -385,29 +382,32 @@ public class Process {
 		this.chunkSize = chunkSize;
 	}
 
-
 	public void createReplica(FileIdentifier fid) throws ClassNotFoundException {
 		ChunkTransferMessage message;
 		List<InetAddress> nodes;
-		//do {
-			nodes = fileIndexer.getSourceAndDestination(fid);
-			System.out.println(nodes.get(0).toString() + " "
-					+ nodes.get(1).toString());
-			message = new ChunkTransferMessage(fid.getSdfsFileName(),
-					fid.getChunkId(), nodes.get(1));
-			System.out.println("Before sending request message");
-		//} while (
-			tcpServer.sendRequestMessage(message, nodes.get(0), TCP_SERVER_PORT);
-				//== null);
+		nodes = fileIndexer.getSourceAndDestination(fid);
+		if (nodes.get(0) == null || nodes.get(1) == null)
+			return;
+		getLogger().info(
+				"Creating the replica for " + fid.getChunkId() + " chunk of "
+						+ fid.getSdfsFileName() + " at "
+						+ nodes.get(1).getHostAddress());
+
+		message = new ChunkTransferMessage(fid.getSdfsFileName(),
+				fid.getChunkId(), nodes.get(1));
+
+		tcpServer.sendRequestMessage(message, nodes.get(0), TCP_SERVER_PORT);
+
 		fileIndexer.merge(new FileIdentifier(fid.getChunkId(), fid
 				.getSdfsFileName(), nodes.get(1)));
 	}
 
 	public void ensureReplicaCount() throws ClassNotFoundException {
 
+		getLogger().info("Started Creating the replica of failed master node");
 		Map<FileIdentifier, Integer> m = new HashMap<FileIdentifier, Integer>();
 		List<FileIdentifier> uniqueChunks = new ArrayList<FileIdentifier>();
-		
+
 		for (FileIdentifier fid : fileIndexer.getFileList()) {
 			Integer value = m.get(fid);
 			if (value != null)
@@ -421,26 +421,22 @@ public class Process {
 			for (int j = 0; j < REPLICA_COUNT - m.get(fid); j++) {
 				createReplica(fid);
 			}
+		getLogger().info("Created the replica of failed master node");
 	}
 
 	public void replicateNode(InetAddress node) throws ClassNotFoundException {
-		System.out.println("Node to be replicated: " + node.getHostAddress());
+		getLogger().info("Started creating the replica of failed node: " + node.getHostAddress());
 		List<FileIdentifier> fids = fileIndexer.groupBy(node);
-		System.out.println(fids.get(0).getChunkAddress());
-		System.out.println("No. of chunks to be replicated"+fids.size());
-		System.out.println("Before deletion of:" + node);
 		fileIndexer.print();
 		for (FileIdentifier fid : fids) {
 			fileIndexer.delete(fid);
 		}
-		System.out.println("After deletion:"  );
 		fileIndexer.print();
-		for (FileIdentifier fid: fids) {
+		for (FileIdentifier fid : fids) {
 			List<InetAddress> nodes = fileIndexer.getSourceAndDestination(fid);
-			System.out.println("Source is: " + nodes.get(0).getHostAddress() + "Destination is: " + nodes.get(1).getHostAddress());
 			createReplica(fid);
 		}
-		
+		getLogger().info("Created the replica of failed node: " + node.getHostAddress());
 	}
 
 	public FileIndexer getFileIndexer() {

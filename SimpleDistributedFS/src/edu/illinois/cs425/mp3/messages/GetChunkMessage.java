@@ -13,6 +13,7 @@ public class GetChunkMessage extends RequestMessage {
 	}
 	@Override
 	public void processMessage(Process process) throws Exception {
+		process.getLogger().info("Sending the "+chunkId+" chunk of:"+this.fileName);
 		outputStream.writeObject(FileSystemManager.getChunk(fileName, chunkId));
 	}
 

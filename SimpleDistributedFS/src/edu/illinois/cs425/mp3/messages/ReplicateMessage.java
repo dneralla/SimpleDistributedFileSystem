@@ -10,6 +10,7 @@ public class ReplicateMessage extends GenericMessage {
 	}
 	@Override
 	public void processMessage(Process process) throws Exception {
+		process.getLogger().info("Receiver request for replication of: "+ node.getHostAddress());
 		process.replicateNode(node.getHostAddress());
 	}
 
